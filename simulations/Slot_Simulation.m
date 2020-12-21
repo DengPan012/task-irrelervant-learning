@@ -34,8 +34,8 @@ end
 
 %% 模拟被试
 time=0;
-for alpha=0.1:0.1:1;%固定学习率为0.5；
-for beta=0.1:0.1:1;%SoftMax参数
+for alpha=0.5%固定学习率为0.5；
+for beta=0.5%SoftMax参数
     time=time+1;
 QL=@(q,r)q+alpha.*(r-q);%经典强化学习，learning rate不变
 Pi=@(Qi,Qj)exp(Qi./beta)/(exp(Qi./beta)+exp(Qj./beta));%SoftMax模拟被试选择
@@ -59,8 +59,8 @@ for i=1:Num %模拟强化学习
     qa_Box(i)=qa;
     qb_Box(i)=qb;
 end
-%% 根据选择计算被试数据
-tot=10;
+%% 根据选择拟合被试数据
+tot=1;
 options = optimset('MaxFunEvals',100000, 'MaxIter', 10000);
 % 模型1
 aBox1=zeros(1,tot);bBox1=zeros(1,tot);LLBox1=zeros(1,tot);
@@ -72,7 +72,7 @@ for k=1
     UB = [1 Inf];%参数上界
     x0 = [rand rand];
     [paramsEst1, minuslli1, ~] = ...
-        fminsearchbnd(@(params)RL(params,Aout,Bout,Num,N,Choice_Box), x0, LB, UB,options);%并利用fminsearchbnd函数获得最大似然的值
+        fminsearchbnd(@(params)RL_Init(params,Aout,Bout,Num,N,Choice_Box), x0, LB, UB,options);%并利用fminsearchbnd函数获得最大似然的值
     aBox1(k) = paramsEst1(1);bBox1(k) = paramsEst1(2);LLBox1(k)= minuslli1;
 end
 
@@ -101,7 +101,7 @@ for i=1:Num %模拟强化学习
 end
 
 %% 画两次PE的散点图
-subplot(10,10,time)
+subplot(1,1,time)
 scatter(PE_Box,PE_Box2,10,[0 0 0])
 xticks([]);yticks([]);
 ax=gca;ax.LineWidth=1;ax.FontName='TimesNewRoman';ax.FontWeight='bold';ax.Box='off';ax.TickDir = 'out';
